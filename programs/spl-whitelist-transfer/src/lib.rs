@@ -12,7 +12,7 @@ pub mod spl_whitelist_transfer {
         Ok(())
     }
 
-    pub fn add_mint(ctx: Context<AddMint>, _mint_bump: u8) -> ProgramResult {
+    pub fn add_mint(ctx: Context<AddMint>, _state_bump: u8, _mint_bump: u8) -> ProgramResult {
         ctx.accounts.mint_pda.transferable = true;
         Ok(())
     }
@@ -54,11 +54,13 @@ pub struct Initialize<'info> {
 }
 
 #[derive(Accounts)]
-#[instruction(_mint_bump: u8)]
+#[instruction(_state_bump: u8, _mint_bump: u8)]
 pub struct AddMint<'info> {
     #[account(mut, signer)]
     initializer: AccountInfo<'info>,
     #[account(
+        seeds = [b"state".as_ref()],
+        bump = _state_bump,
         constraint = state.initializer == *initializer.key
     )]
     state: ProgramAccount<'info, State>,
